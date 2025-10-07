@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Quiz - Quiz Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 24px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+        
+        .quiz-form {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .quiz-form h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .quiz-form p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .difficulty-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .difficulty-card {
+            position: relative;
+        }
+        
+        .difficulty-card input[type="radio"] {
+            display: none;
+        }
+        
+        .difficulty-label {
+            display: block;
+            padding: 20px;
+            background: #f8f9fa;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .difficulty-card input[type="radio"]:checked + .difficulty-label {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .difficulty-label:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .difficulty-label .icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .difficulty-label .name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .btn-start {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .messages {
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Select Your Quiz</h1>
+            <a href="{% url 'user_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+        
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <div class="quiz-form">
+            <h2>Configure Your Quiz</h2>
+            <p>Choose your topic, difficulty level, and number of questions to begin</p>
+            
+            <form method="POST" action="{% url 'start_quiz' %}">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="topic">Topic *</label>
+                    <select name="topic" id="topic" required>
+                        <option value="">-- Select Topic --</option>
+                        {% for topic in topics %}
+                            <option value="{{ topic.id }}">{{ topic.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="subtopic">Subtopic (Optional)</label>
+                    <select name="subtopic" id="subtopic">
+                        <option value="">-- All Subtopics --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Difficulty Level *</label>
+                    <div class="difficulty-options">
+                        <div class="difficulty-card">
+                            <input type="radio" name="difficulty" value="easy" id="easy" required>
+                            <label for="easy" class="difficulty-label">
+                                <div class="icon">🟢</div>
+                                <div class="name">Easy</div>
+                            </label>
+                        </div>
+                        
+                        <div class="difficulty-card">
+                            <input type="radio" name="difficulty" value="medium" id="medium">
+                            <label for="medium" class="difficulty-label">
+                                <div class="icon">🟡</div>
+                                <div class="name">Medium</div>
+                            </label>
+                        </div>
+                        
+                        <div class="difficulty-card">
+                            <input type="radio" name="difficulty" value="hard" id="hard">
+                            <label for="hard" class="difficulty-label">
+                                <div class="icon">🔴</div>
+                                <div class="name">Hard</div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="num_questions">Number of Questions</label>
+                    <input type="number" name="num_questions" id="num_questions" value="10" min="5" max="50" required>
+                </div>
+                
+                <button type="submit" class="btn-start">Start Quiz 🚀</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Load subtopics when topic changes
+        document.getElementById('topic').addEventListener('change', function() {
+            const topicId = this.value;
+            const subtopicSelect = document.getElementById('subtopic');
+            
+            // Clear existing options
+            subtopicSelect.innerHTML = '<option value="">-- All Subtopics --</option>';
+            
+            if (topicId) {
+                fetch(`/get-subtopics/${topicId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(subtopic => {
+                            const option = document.createElement('option');
+                            option.value = subtopic.id;
+                            option.textContent = subtopic.name;
+                            subtopicSelect.appendChild(option);
+                        });
+                    });
+            }
+        });
+    </script>
+</body>
+</html>

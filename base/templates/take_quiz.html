@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Quiz - Question {{current_number}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .progress-bar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .progress-info span {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .progress-track {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .question-card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .question-number {
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .question-text {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .option {
+            position: relative;
+        }
+        
+        .option input[type="radio"] {
+            display: none;
+        }
+        
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .option input[type="radio"]:checked + .option-label {
+            background: #e0e7ff;
+            border-color: #667eea;
+        }
+        
+        .option-label:hover {
+            background: #e2e8f0;
+            transform: translateX(5px);
+        }
+        
+        .option-letter {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #667eea;
+            margin-right: 15px;
+        }
+        
+        .option input[type="radio"]:checked + .option-label .option-letter {
+            background: #667eea;
+            color: white;
+        }
+        
+        .option-text {
+            flex: 1;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        @media (max-width: 768px) {
+            .question-card {
+                padding: 25px 20px;
+            }
+            
+            .question-text {
+                font-size: 18px;
+            }
+            
+            .navigation {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="progress-bar">
+            <div class="progress-info">
+                <span>Question {{current_number}} of {{total_questions}}</span>
+                <span>{{progress_percentage}}% Complete</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+        
+        <div class="question-card">
+            <div class="question-number">QUESTION {{current_number}}</div>
+            <div class="question-text">{{question.question_text}}</div>
+            
+            <form method="POST" action="{% url 'save_answer' %}" id="answerForm">
+                {% csrf_token %}
+                <input type="hidden" name="question_id" value="{{question.id}}">
+                
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="answer" value="A" id="option_a" 
+                               {% if user_answer == 'A' %}checked{% endif %} required>
+                        <label for="option_a" class="option-label">
+                            <div class="option-letter">A</div>
+                            <div class="option-text">{{question.option_a}}</div>
+                        </label>
+                    </div>
+                    
+                    <div class="option">
+                        <input type="radio" name="answer" value="B" id="option_b"
+                               {% if user_answer == 'B' %}checked{% endif %}>
+                        <label for="option_b" class="option-label">
+                            <div class="option-letter">B</div>
+                            <div class="option-text">{{question.option_b}}</div>
+                        </label>
+                    </div>
+                    
+                    <div class="option">
+                        <input type="radio" name="answer" value="C" id="option_c"
+                               {% if user_answer == 'C' %}checked{% endif %}>
+                        <label for="option_c" class="option-label">
+                            <div class="option-letter">C</div>
+                            <div class="option-text">{{question.option_c}}</div>
+                        </label>
+                    </div>
+                    
+                    <div class="option">
+                        <input type="radio" name="answer" value="D" id="option_d"
+                               {% if user_answer == 'D' %}checked{% endif %}>
+                        <label for="option_d" class="option-label">
+                            <div class="option-letter">D</div>
+                            <div class="option-text">{{question.option_d}}</div>
+                        </label>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="navigation">
+            {% if current_number > 1 %}
+                <a href="{% url 'previous_question' %}" class="btn btn-secondary">← Previous</a>
+            {% else %}
+                <button class="btn btn-secondary" disabled>← Previous</button>
+            {% endif %}
+            
+            {% if current_number < total_questions %}
+                <button onclick="submitAnswer()" class="btn btn-primary">Next Question →</button>
+            {% else %}
+                <button onclick="submitAnswer()" class="btn btn-primary">Finish Quiz ✓</button>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        function submitAnswer() {
+            const form = document.getElementById('answerForm');
+            const selectedAnswer = form.querySelector('input[name="answer"]:checked');
+            
+            if (!selectedAnswer) {
+                alert('Please select an answer before proceeding');
+                return;
+            }
+            
+            form.submit();
+        }
+    </script>
+</body>
+</html>

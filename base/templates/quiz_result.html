@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Results - Quiz Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .result-header {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .result-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .result-header h1 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .result-header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .score-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .score-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .score-card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .score-card .value {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .score-card.total .value {
+            color: #667eea;
+        }
+        
+        .score-card.correct .value {
+            color: #10b981;
+        }
+        
+        .score-card.wrong .value {
+            color: #ef4444;
+        }
+        
+        .score-card.percentage .value {
+            color: #f59e0b;
+        }
+        
+        .quiz-info {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .quiz-info h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .info-label {
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .answers-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .answers-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .answer-item {
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+        
+        .answer-item.correct {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .answer-item.wrong {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .answer-question {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .answer-details {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+        }
+        
+        .answer-details span {
+            color: #666;
+        }
+        
+        .answer-details strong {
+            color: #333;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+        
+        @media (max-width: 768px) {
+            .result-header {
+                padding: 25px 20px;
+            }
+            
+            .result-header h1 {
+                font-size: 24px;
+            }
+            
+            .score-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="result-header">
+            {% if quiz.score_percentage >= 80 %}
+                <div class="result-icon">🎉</div>
+                <h1>Excellent Work!</h1>
+                <p>You've mastered this topic</p>
+            {% elif quiz.score_percentage >= 60 %}
+                <div class="result-icon">👍</div>
+                <h1>Good Job!</h1>
+                <p>Keep practicing to improve</p>
+            {% elif quiz.score_percentage >= 40 %}
+                <div class="result-icon">📚</div>
+                <h1>Keep Learning!</h1>
+                <p>You're making progress</p>
+            {% else %}
+                <div class="result-icon">💪</div>
+                <h1>Don't Give Up!</h1>
+                <p>Practice makes perfect</p>
+            {% endif %}
+        </div>
+        
+        <div class="score-cards">
+            <div class="score-card total">
+                <h3>Total Questions</h3>
+                <div class="value">{{ quiz.total_questions }}</div>
+            </div>
+            
+            <div class="score-card correct">
+                <h3>Correct Answers</h3>
+                <div class="value">{{ quiz.correct_answers }}</div>
+            </div>
+            
+            <div class="score-card wrong">
+                <h3>Wrong Answers</h3>
+                <div class="value">{{ quiz.wrong_answers }}</div>
+            </div>
+            
+            <div class="score-card percentage">
+                <h3>Your Score</h3>
+                <div class="value">{{ quiz.score_percentage|floatformat:1 }}%</div>
+            </div>
+        </div>
+        
+        <div class="quiz-info">
+            <h3>📋 Quiz Details</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Topic:</span>
+                    <span class="info-value">{{ quiz.topic.name }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">Subtopic:</span>
+                    <span class="info-value">{% if quiz.subtopic %}{{ quiz.subtopic.name }}{% else %}All{% endif %}</span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">Difficulty:</span>
+                    <span class="info-value">{{ quiz.difficulty|title }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">Date:</span>
+                    <span class="info-value">{{ quiz.date_taken|date:"M d, Y H:i" }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">Time Taken:</span>
+                    <span class="info-value">
+                        {% if quiz.time_taken %}
+                            {{ quiz.time_taken.seconds|div:60 }} min
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">User:</span>
+                    <span class="info-value">{{ quiz.user.username }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="answers-section">
+            <h3>📝 Detailed Answers</h3>
+            
+            {% for answer in answers %}
+                <div class="answer-item {% if answer.is_correct %}correct{% else %}wrong{% endif %}">
+                    <div class="answer-question">
+                        Q{{ forloop.counter }}: {{ answer.question.question_text }}
+                    </div>
+                    <div class="answer-details">
+                        <span>Your Answer: <strong>{{ answer.user_answer }}</strong></span>
+                        <span>Correct Answer: <strong>{{ answer.question.correct_answer }}</strong></span>
+                        {% if answer.is_correct %}
+                            <span style="color: #10b981;">✓ Correct</span>
+                        {% else %}
+                            <span style="color: #ef4444;">✗ Wrong</span>
+                        {% endif %}
+                    </div>
+                    {% if answer.question.explanation %}
+                        <div style="margin-top: 10px; color: #666; font-size: 14px;">
+                            💡 {{ answer.question.explanation }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="actions">
+            <a href="{% url 'select_quiz' %}" class="btn btn-primary">Take Another Quiz</a>
+            <a href="{% url 'user_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>
