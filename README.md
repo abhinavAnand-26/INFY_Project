@@ -197,5 +197,3 @@ export GOOGLE_AI_API_KEY="your-api-key"
 
 This project is licensed under the MIT License.
 
-
-**Made with ❤️ for better learning experiences**
