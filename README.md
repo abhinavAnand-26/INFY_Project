@@ -70,7 +70,7 @@ A Django-powered quiz app with AI-driven question generation, adaptive learning,
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/dharani043/Smart_Quizzer.git
+git clone https://github.com/abhinavAnand-26/INFY_PROJECT.git
 cd Smart_Quizzer
 ```
 
